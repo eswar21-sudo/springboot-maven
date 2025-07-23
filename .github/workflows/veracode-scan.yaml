@@ -38,39 +38,3 @@ jobs:
         env:
           VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
           VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
-name: Veracode Static Scan
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  veracode-scan:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Java (if applicable)
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Build Application (adjust if Node.js)
-        run: |
-          if [ -f ./gradlew ]; then ./gradlew build; fi
-          if [ -f pom.xml ]; then ./mvnw package || mvn package; fi
-          if [ -f package.json ]; then npm install && zip -r app.zip .; fi
-
-      - name: Upload and Scan with Veracode
-        uses: veracode/veracode-uploadandscan-action@v0.2.8
-        with:
-          appname: 'SampleVeracodeApp'
-          createprofile: true
-          filepath: 'build/libs/sample-veracode-app-1.0-SNAPSHOT.jar'
-          version: ${{ github.run_id }}
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
