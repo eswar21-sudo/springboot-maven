@@ -29,7 +29,7 @@ jobs:
           zip -r veracode-artifact.zip veracode-package/
 
       - name: Upload to Veracode
-        uses: veracode/veracode-uploadandscan-action@v0.2.4
+        uses: veracode/veracode-uploadandscan-action@v0.2.6
         with:
           appname: "SampleJavaApp"
           createprofile: true
