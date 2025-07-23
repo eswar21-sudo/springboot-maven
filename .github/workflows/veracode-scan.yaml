@@ -26,12 +26,11 @@ jobs:
           if [ -f package.json ]; then npm install && zip -r app.zip .; fi
 
       - name: Upload and Scan with Veracode
-        uses: veracode/veracode-uploadandscan-action@v0.2.5
+        uses: veracode/veracode-uploadandscan-action@v0.2.8
         with:
           appname: 'SampleVeracodeApp'
           createprofile: true
-          filepath: |
-            $(find . -name "*.jar" -o -name "*.zip" | head -n 1)
+          filepath: 'build/libs/sample-veracode-app-1.0-SNAPSHOT.jar'
           version: ${{ github.run_id }}
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
