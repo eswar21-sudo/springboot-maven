@@ -1,3 +1,43 @@
+name: Veracode Upload and Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  veracode-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Zip built artifact
+        run: |
+          mkdir veracode-package
+          cp target/*.jar veracode-package/
+          zip -r veracode-artifact.zip veracode-package/
+
+      - name: Upload to Veracode
+        uses: veracode/veracode-uploadandscan-action@v0.2.8
+        with:
+          appname: "SampleJavaApp"
+          createprofile: true
+          version: "${{ github.run_number }}"
+          filepath: "veracode-artifact.zip"
+        env:
+          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+          VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
 name: Veracode Static Scan
 
 on:
