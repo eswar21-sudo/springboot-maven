@@ -1,0 +1,37 @@
+name: Veracode Static Scan
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  veracode-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java (if applicable)
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build Application (adjust if Node.js)
+        run: |
+          if [ -f ./gradlew ]; then ./gradlew build; fi
+          if [ -f pom.xml ]; then ./mvnw package || mvn package; fi
+          if [ -f package.json ]; then npm install && zip -r app.zip .; fi
+
+      - name: Upload and Scan with Veracode
+        uses: veracode/veracode-uploadandscan-action@v0.2.5
+        with:
+          appname: 'SampleVeracodeApp'
+          createprofile: true
+          filepath: |
+            $(find . -name "*.jar" -o -name "*.zip" | head -n 1)
+          version: ${{ github.run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
